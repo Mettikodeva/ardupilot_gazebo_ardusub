@@ -193,10 +193,10 @@ void ArduCopterIRLockPlugin::Load(sensors::SensorPtr _sensor,
         << std::endl;
     return;
   }
-  getSdfParam<std::string>(_sdf, "irlock_addr",
-      this->dataPtr->irlock_addr, "127.0.0.1");
-  getSdfParam<uint16_t>(_sdf, "irlock_port",
-      this->dataPtr->irlock_port, 9005);
+  this->dataPtr->irlock_addr =
+          _sdf->Get("irlock_addr", static_cast<std::string>("127.0.0.1")).first;
+      this->dataPtr->irlock_port =
+          _sdf->Get("irlock_port", 9005).first;
 
   this->dataPtr->parentSensor->SetActive(true);
 
@@ -234,7 +234,7 @@ void ArduCopterIRLockPlugin::OnNewFrame(const unsigned char * /*_image*/,
       continue;
 
     ignition::math::Vector2i pt = GetScreenSpaceCoords(
-        vis->GetWorldPose().pos.Ign(), camera);
+        vis->WorldPose().Pos(), camera);
 
     // use selection buffer to check if visual is occluded by other entities
     // in the camera view
@@ -259,7 +259,7 @@ void ArduCopterIRLockPlugin::OnNewFrame(const unsigned char * /*_image*/,
 
     if (result && result->GetRootVisual() == vis)
     {
-      this->Publish(vis->GetName(), pt.X(), pt.Y());
+      this->Publish(vis->Name(), pt.X(), pt.Y());
     }
   }
 }
